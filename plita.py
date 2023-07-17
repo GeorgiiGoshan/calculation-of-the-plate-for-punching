@@ -11,9 +11,9 @@ units = {"hox": "м", "hoy": "м", "h0": "м", "Aq": "м2", "Fq": "кН", "Aq1":
 
 def get_entry_values(entries):  # получаем значения введенные пользователем
 
-    values = {}  # создаем пустой словарь для значений
-    for key, entry in entries.items():  # перебираем ключи словаря entries
-        if key == "F":  # отдельно обрабатываем и сразу считаем F
+    values = {} # создаем пустой словарь для значений
+    for key, entry in entries.items(): # перебираем ключи словаря entries
+        if key == "F": # отдельно обрабатываем и сразу считаем F
 
             F_str = entry.get()  # получаем выбранную пользователем формулу
 
@@ -31,7 +31,7 @@ def get_entry_values(entries):  # получаем значения введен
             Rbt = float(entries["Rbt"].get().replace(",", "."))
             h = float(entries["h"].get().replace(",", "."))
 
-            hox = h - zox  # прописываем формулы нужные для нахождения F
+            hox = h - zox # прописываем формулы нужные для нахождения F
             hoy = h - zoy
             h0 = 1 / 2 * (hox + hoy)
             Aq = h0 * (a1 + b1 + h0)
@@ -39,17 +39,17 @@ def get_entry_values(entries):  # получаем значения введен
             Aq1 = (a1 + h0) * (b1 + h0)
             Fq1 = q1 * Aq1
 
-            if F_str == "N1+Fq1":  # Считаем саму формулу
+            if F_str == "N1+Fq1": # Считаем саму формулу
                 F_value = N1 + Fq1
             elif F_str == "N1-Fq+Fq1":
                 F_value = N1 - Fq + Fq1
             elif F_str == "N2-N1-Fq-Fq1":
                 F_value = N2 - N1 - Fq - Fq1
-            values[key] = float(F_value)  # добавляем к словарю
-        else:  # для остальных данных просто преобразовывваем в число и записываем в словарь значений
+            values[key] = float(F_value) # добавляем к словарю
+        else: # для остальных данных просто преобразовывваем в число и записываем в словарь значений
             values[key] = float(
-                entry.get().replace(",", "."))  # получаем значение из поля ввода и преобразуем его в число
-    return values  # возвращаем словарь значений
+                entry.get().replace(",", ".")) # получаем значение из поля ввода и преобразуем его в число
+    return values # возвращаем словарь значений
 
 
 def calculate(values):  # считаем по формулам
@@ -70,9 +70,9 @@ def calculate(values):  # считаем по формулам
     h = values['h']
 
     # переводим нужные данные
-    Asw = Asw / (10 ** 4)  # в м2
-    Rs = Rs * 1000  # в кн/м2
-    Rbt = Rbt * 1000  # в кн/м2
+    Asw = Asw / (10**4) # в м2
+    Rs = Rs * 1000 # в кн/м2
+    Rbt = Rbt * 1000 # в кн/м2
 
     # прописываем и считаем формулы
     hox = h - zox
@@ -82,7 +82,7 @@ def calculate(values):  # считаем по формулам
     Fq = q * Aq
     Aq1 = (a1 + h0) * (b1 + h0)
     Fq1 = q1 * Aq1
-    F = values['F']  # получаем F из словаря
+    F = values['F'] # получаем F из словаря
     a = a1 + h0
     b = b1 + h0
     Ub = 2 * (a + b)
@@ -121,9 +121,8 @@ def calculate(values):  # считаем по формулам
         results['Fb_check'] = 'Несущая способность неудовлетворительна, добавляем арматуру.'
 
         # добавляем формулы для арматуры
-        Us = Ub
-        Rsw = 0.8 * Rs
-        if Rsw > 300000:  # Rsw не может быть больше 300000мПа
+    # добавляем формулы для арматуры    Us = Ub
+        Rsw  = 0.8 * Rsif Rsw > 300000:  # Rsw не может быть больше 300000мПа
             Rsw = 300000
         qsw = (Rsw * Asw) / Sw
         F_sw_ult = 0.8 * qsw * Us
@@ -162,9 +161,16 @@ def calculate(values):  # считаем по формулам
                 "F_sw_ult_half_check"] = "F_sw_ult < 0.5Fb_ult, условие не выполняется, арматура не учитывается в расчете!"
 
             if F <= Fb_ult:
-                results["F_strength_check"] = "F <= Fb_ult, условие прочности выполнено, прочность ОБЕСПЕЧЕНА!"
-            else:
-                results["F_strength_check"] = "F => Fb_ult, Условие прочности не выполнено. Прочность не обеспечена!"
+            results["F_strength_check"] = "F <= Fb_ult , условие прочности выполнено, прочность ОБЕСПЕЧЕНА!"
+        else:
+            results["F_strength_check"] ="F => Fb_ult , Условие прочности не выполнено. Прочность не обеспечена!"
+
+    # добавляем еще результаты
+    results["Us"] = Us
+    results["Rsw"] = Rsw
+    results["qsw"] = qsw
+    results["F_sw_ult"] = F_sw_ult
+    print(Us, Rsw, qsw, F_sw_ult)
 
     return results
 
@@ -190,10 +196,10 @@ def show_values():  # выводим результаты на экран при
         labels.append(label)  # добавляем метку в список
 
 
-win = tk.Tk()  # создаем окно приложения
+win = tk.Tk() # создаем окно приложения
 ##photo = tk.PhotoImage(file='fit.png') # пока не используем иконку приложения для простоты тестов на разных устройствах
 ##win.iconphoto(False, photo)
-win.title('Расчёт плиты на продавливание')  # задаем название вверху окна
+win.title('Расчёт плиты на продавливание') # задаем название вверху окна
 win.geometry('1100x600+250+50')  # задаем размер и адрес окна
 win.resizable(False, False)  # запрещаем менять размер
 
@@ -275,8 +281,7 @@ F.grid(row=14, column=1)
 entries = {"q": q, "a1": a1, "b1": b1, "zox": zox, "zoy": zoy, "N1": N1, "N2": N2, "q1": q1, "Asw": Asw, "Sw": Sw,
            "Rs": Rs, "Rbt": Rbt, "h": h, "F": F}
 
-btn_start = tk.Button(win, text='Рассчитать', command=show_values, bg='orange', activebackground='orange',
-                      bd=5)  # создаем кнопку "рассчитать" которая запускает расчет
+btn_start = tk.Button(win, text = 'Рассчитать', command=show_values, bg='orange',activebackground='orange',bd=5) # создаем кнопку "рассчитать" которая запускает расчет
 btn_start.grid(row=15, column=0, columnspan=2, stick='we')
 
 # задаем размеры столбцов
