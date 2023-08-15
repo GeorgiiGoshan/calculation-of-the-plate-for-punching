@@ -1,5 +1,9 @@
 import tkinter as tk
 from tkinter import ttk
+import PIL
+import PIL.ImageTk
+import PIL.Image
+
 
 formuls = ('N1+Fq1', 'N1-Fq+Fq1',
            'N2-N1-Fq-Fq1')  # объявляем список с формулами, пользователь на экране должен выбрать одну из них
@@ -8,6 +12,17 @@ units = {"hox": "м", "hoy": "м", "h0": "м", "Aq": "м2", "Fq": "кН", "Aq1":
          "F": "кН", "a": "м", "b": "м", "Ub": "м", "Fb_ult": "кН", "Us": "м", "Rsw": "кПа", "qsw": "кН/м",
          "F_sw_ult": "кН"}
 
+def show_drawing():                         # функция для открытия чертежа по кнопке
+
+    drawing_window = tk.Toplevel()
+    drawing_window.title("Схема для расчёта железобетонных плит")
+    img = PIL.Image.open("razrez.bmp")  # открыть изображение как объект типа Image
+    img = img.resize((800, 900), PIL.Image.ANTIALIAS)  # изменить размер изображения как объекта типа Image
+    photo = PIL.ImageTk.PhotoImage(img)  # преобразовать изображение в объект типа PhotoImage
+    label = tk.Label(drawing_window, image=photo)
+    label.image = photo  # сохранить ссылку на изображение
+    label.pack()
+    drawing_window.mainloop()
 
 def get_entry_values(entries):  # получаем значения введенные пользователем
 
@@ -140,7 +155,7 @@ def calculate(values):  # считаем по формулам
             else:
                 results["F_sw_ult_check"] = "F_sw_ult < Fb_ult, проверка ПРОЙДЕНА!"
 
-                # добавляем еще результаты
+        # добавляем еще результаты
         results["Us"] = Us
         results["Rsw"] = Rsw
         results["qsw"] = qsw
@@ -171,9 +186,7 @@ def calculate(values):  # считаем по формулам
 
 def show_values():  # выводим результаты на экран приложения
     values = get_entry_values(entries)  # получаем словарь значений
-    ##    print(values) # выводим в консоль для проверки
     results = calculate(values)  # считаем с помощью функции calculate
-    ##    print(results) # выводим в консоль для проверки
     global labels  # создаем глобальную переменную для хранения меток
     if labels:  # если список меток не пустой
         for label in labels:  # удаляем каждую метку с экрана
@@ -279,7 +292,13 @@ btn_start = tk.Button(win, text='Рассчитать', command=show_values, bg=
                       bd=5)  # создаем кнопку "рассчитать" которая запускает расчет
 btn_start.grid(row=15, column=0, columnspan=2, stick='we')
 
-# задаем размеры столбцов
+button = tk.Button(win, text="Показать схему для расчёта", command=show_drawing, bg='grey')
+button.grid(row=18, column=0, columnspan=2, stick='we')
+
+# задаем размеры столбцов и строк
+
+for i in range(18): # 18 рядов
+    win.rowconfigure(i, weight=0, minsize=20)
 win.grid_columnconfigure(0, minsize=200)
 win.grid_columnconfigure(0, minsize=100)
 
